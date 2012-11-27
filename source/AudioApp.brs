@@ -89,22 +89,22 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     Audio = AudioInit()
     picture = song.HDPosterUrl
     print "picture at:"; picture
-    repNL = CreateObject("roRegex", "\n", "")
     o = CreateObject("roAssociativeArray")
     o.HDPosterUrl = picture
     o.SDPosterUrl = picture
     o.Title = song.shortdescriptionline1
-    o.Description = repNL.Replace(song.Description, " ")
+    o.Description = song.Description
     o.contenttype = "episode"
-        
+    o.ReleaseDate = song.ReleaseDate
+    
     if (song.artist > "")
-        o.Description = o.Description + chr(10) + "by: " + song.artist
+        o.Actors = CreateObject("roArray", 1, true)
+        o.Actors.Push(song.artist)
     endif
         
     scr = create_springboard(Audio.port, prevLoc)
     scr.ReloadButtons(2) 'set buttons for state "playing"
     scr.screen.SetTitle("Screen Title")
-
     scr.screen.SetContent(o)
 
     scr.Show()
