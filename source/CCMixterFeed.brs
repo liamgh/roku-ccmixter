@@ -20,17 +20,18 @@ Function loadFeed()
    For Each item In xml.channel.item
       title = item.title.GetText()
       author = item.GetNamedElements("dc:creator").GetText()
-      description = processDescription(item.GetNamedElements("content:encoded").GetText())
+      description = extractDescription(item.GetNamedElements("content:encoded").GetText())
       file = item.enclosure@url
       releaseDate = item.pubDate.GetText()
-      song = CreateSong(title,author,description,"mp3", file, "pkg:/images/ccMpromo.png", releaseDate)
+      length = extractLength(item.GetNamedElements("content:encoded").GetText())
+      song = CreateSong(title,author,description,"mp3", file, "pkg:/images/ccMpromo.png", releaseDate, length)
       aa.posteritems.push(song)
    End For
    
    return aa 
 End Function
 
-Function processDescription(description As String)
+Function extractDescription(description As String)
    reEle = CreateObject("roRegex", "<[^>]*>", "")
    reApost = CreateObject("roRegex", "\&\#8217;", "")
    reWhiteSpace = CreateObject("roRegex", "^[ \t]+|[ \t]+$", "")
@@ -57,4 +58,22 @@ Function processDescription(description As String)
    description = reExcessSpace.ReplaceAll(description, " ")
   
    return description
+End Function
+
+Function extractLength(text As String)
+   length = 0
+    
+   ' 19 is length of tag we are looking for
+   duraMarker = instr(0, text, "enclosure_duration%") + 19
+   endMarker = instr(duraMarker, text, "%") 
+   If endMarker - duraMarker > 1 Then
+       colonMarker = instr(duraMarker, text, ":")
+       if colonMarker > 1 Then
+           mins = mid(text, duraMarker, colonMarker - duraMarker).ToInt()
+           secs = mid(text, colonMarker+1, endMarker - colonMarker -1).ToInt()
+           length = (mins *60) + secs
+       End If
+   End If
+   
+   return length
 End Function

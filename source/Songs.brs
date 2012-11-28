@@ -8,7 +8,7 @@ REM ****************************************************************
 REM Create a Song Item
 REM return the Song as a Poster Item
 REM ****************************************************************
-Function CreateSong(title as string, artist as string, description as string, streamformat as string, feedurl as string, imagelocation as string, releaseDate as string) as Object
+Function CreateSong(title as string, artist as string, description as string, streamformat as string, feedurl as string, imagelocation as string, releaseDate as string, length as Integer) as Object
 
     item = CreatePosterItem("", title, artist)
     'override Poster pointers
@@ -21,5 +21,6 @@ Function CreateSong(title as string, artist as string, description as string, st
     item.streamformat = streamformat
     item.picture = item.HDPosterUrl      ' default audioscreen picture to PosterScreen Image
     item.ReleaseDate = releaseDate
+    item.Length = length
     return item
 End Function

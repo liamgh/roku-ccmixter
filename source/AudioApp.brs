@@ -44,6 +44,7 @@ Sub Main()
     SetTheme()
     
      SongList = loadFeed()
+     
     Pscreen = StartPosterScreen(SongList, "", "Podcasts")
 
     while true
@@ -51,7 +52,6 @@ Sub Main()
         if song = -1 exit while
         Show_Audio_Screen(songlist.posteritems[song],"Podcasts")
     end while
-
     print "Exiting Main"
 End Sub
 
@@ -96,6 +96,10 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     o.Description = song.Description
     o.contenttype = "episode"
     o.ReleaseDate = song.ReleaseDate
+    o.contentType = "audio"
+    If song.Length > 0 Then
+       o.Length = song.Length
+    EndIf
     
     if (song.artist > "")
         o.Actors = CreateObject("roArray", 1, true)
@@ -106,6 +110,10 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     scr.ReloadButtons(2) 'set buttons for state "playing"
     scr.screen.SetTitle("Screen Title")
     scr.screen.SetContent(o)
+    If song.Length > 0 Then
+       scr.screen.SetProgressIndicatorEnabled(true)
+       scr.screen.SetProgressIndicator(0,song.Length)
+    End If
 
     scr.Show()
 
@@ -114,14 +122,22 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     Audio.setupSong(song.feedurl, song.streamformat)
     Audio.audioplayer.setNext(0)
     Audio.setPlayState(2)               ' start playing
-        
+    timePlayed = 0
+    isTiming = False    
     while true
-        msg = Audio.getMsgEvents(20000, "roSpringboardScreenEvent")
-
+        msg = Audio.getMsgEvents(1000, "roSpringboardScreenEvent")
+        If song.Length > 0 Then
+           If isTiming Then timePlayed = timePlayed + 1
+           scr.screen.SetProgressIndicator(timePlayed, song.Length)
+        End If 
         if type(msg) = "roAudioPlayerEvent"  then       ' event from audio player
             if msg.isStatusMessage() then
                 message = msg.getMessage()
                 print "AudioPlayer Status Event - " message
+                if message = "start of play" then
+                    print "Starting to play track"
+                    isTiming = True
+                End If
                 if message = "end of playlist"
                     print "end of playlist (obsolete status msg event)"
                         ' ignore
@@ -132,18 +148,22 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
                 endif
             else if msg.isListItemSelected() then
                 print "starting song:"; msg.GetIndex()
-                else if msg.isRequestSucceeded()
+            else if msg.isRequestSucceeded()
                 print "ending song:"; msg.GetIndex()
                 audio.setPlayState(0)   ' stop the player, wait for user input
                 scr.ReloadButtons(0)    ' set button to allow play start
+                isTiming = False
             else if msg.isRequestFailed()
                 print "failed to play song:"; msg.GetData()
             else if msg.isFullResult()
                 print "FullResult: End of Playlist"
             else if msg.isPaused()
                 print "Paused"
+                isTiming = False
             else if msg.isResumed()
                 print "Resumed"
+                timer.mark()
+                isTiming = True
             else
                 print "ignored event type:"; msg.getType()
             endif
