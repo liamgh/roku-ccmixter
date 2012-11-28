@@ -52,7 +52,7 @@ REM
 REM ******************************************************
 Function posterscreen_loadfeed(feed As Object) As Boolean
     if feed = invalid return false
-    m.screen.SetListStyle("arced-portrait")
+    m.screen.SetListStyle("flat-category")
     m.screen.SetListDisplayMode("best-fit")
 
     m.screen.SetFocusedListItem(0)
