@@ -104,6 +104,7 @@ Function audioPlayer_getmsg(timeout as Integer, escape as String) As Object
 	    if type(msg) = "roAudioPlayerEvent" return msg
 	    if type(msg) = escape return msg
 	    if type(msg) = "Invalid" return msg
+	    
 	    ' eat all other messages
 	end while
 End Function

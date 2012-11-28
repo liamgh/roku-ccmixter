@@ -1,6 +1,6 @@
-
 Function loadFeed()
-
+   avatars = CreateObject("roAssociativeArray")
+   
    aa = CreateObject("roAssociativeArray")
    aa.posteritems = CreateObject("roArray", 10, true)
    feedUrl = "http://ccmixter.org/api/query?datasource=topics&type=podcast&page=podcast&f=rss"
@@ -24,7 +24,10 @@ Function loadFeed()
       file = item.enclosure@url
       releaseDate = item.pubDate.GetText()
       length = extractLength(item.GetNamedElements("content:encoded").GetText())
-      song = CreateSong(title,author,description,"mp3", file, "pkg:/images/ccMpromo.png", releaseDate, length)
+      userName = findUserName(item.GetNamedElements("content:encoded").GetText())
+      avatars = updateAvatars(avatars, userName)
+      image = avatars[userName]
+      song = CreateSong(title,author,description,"mp3", file, image, releaseDate, length)
       aa.posteritems.push(song)
    End For
    
@@ -76,4 +79,32 @@ Function extractLength(text As String)
    End If
    
    return length
+End Function
+
+Function findUserName(text As String) 
+   startMarker = Instr(0,text, "http://ccmixter.org/people/")
+   if startMarker > 0 Then
+       endQuotMarker = Instr(startMarker, text, ">")
+       return Mid(text, startMarker + 27, endQuotMarker - startMarker - 28)
+   End If
+   return ""
+End Function
+
+Function askCCMixterForUserAvatar(userName as String)
+   reStart = CreateObject("roRegex", "\<img src=", "")
+   imageUrl = "pkg:/images/ccMpromo.png"
+   url = "http://ccmixter.org/api/query?limit=page&f=html&t=avatar&u=" + userName
+   http = NewHttp(url)
+   rsp = http.GetToStringWithRetry()
+   if left(rsp, 4) = "<img" Then
+       imageUrl = Mid(rsp, 11, Len(rsp) - 14)
+   End If
+   return imageUrl
+End Function
+
+Function updateAvatars(avatars As Object, userName as String)
+   If Not avatars.DoesExist(userName) Then
+       avatars[userName] = askCCMixterForUserAvatar(userName)
+   End If
+   return avatars
 End Function

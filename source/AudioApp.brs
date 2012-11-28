@@ -162,7 +162,6 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
                 isTiming = False
             else if msg.isResumed()
                 print "Resumed"
-                timer.mark()
                 isTiming = True
             else
                 print "ignored event type:"; msg.getType()
