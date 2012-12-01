@@ -100,6 +100,7 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     o.contenttype = "episode"
     o.ReleaseDate = song.ReleaseDate
     o.contentType = "audio"
+    o.Rating = song.Licence
     If song.Length > 0 Then
        o.Length = song.Length
     EndIf

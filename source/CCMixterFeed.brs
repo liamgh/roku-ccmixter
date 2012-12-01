@@ -7,8 +7,6 @@ Function loadFeed()
    
    http = NewHttp(feedUrl)
 
-   print "url: " + http.Http.GetUrl()
-
    rsp = http.GetToStringWithRetry()
 
    xml=CreateObject("roXMLElement")
@@ -27,7 +25,8 @@ Function loadFeed()
       userName = findUserName(item.GetNamedElements("content:encoded").GetText())
       avatars = updateAvatars(avatars, userName)
       image = avatars[userName]
-      song = CreateSong(title,author,description,"mp3", file, image, releaseDate, length)
+      licence = formatLicence(item.GetNamedElements("cc:license").GetText())
+      song = CreateSong(title,author,description,"mp3", file, image, releaseDate, length, licence)
       aa.posteritems.push(song)
    End For
    
@@ -107,4 +106,14 @@ Function updateAvatars(avatars As Object, userName as String)
        avatars[userName] = askCCMixterForUserAvatar(userName)
    End If
    return avatars
+End Function
+
+Function formatLicence(url As string)
+    abbr = ""
+    ccl_url = "http://creativecommons.org/licenses/"
+    if Left(url, Len(ccl_url)) = ccl_url Then
+        endMarker = Instr(len(ccl_url)+1, url, "/")
+        abbr = "CC-" + UCase(Mid(url, Len(ccl_url)+1, endMarker - Len(ccl_url)-1))
+    End IF
+    return abbr
 End Function
