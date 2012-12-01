@@ -20,7 +20,7 @@ Function loadFeed()
       author = item.GetNamedElements("dc:creator").GetText()
       description = extractDescription(item.GetNamedElements("content:encoded").GetText())
       file = item.enclosure@url
-      releaseDate = item.pubDate.GetText()
+      releaseDate = formatDate(item.pubDate.GetText())
       length = extractLength(item.GetNamedElements("content:encoded").GetText())
       userName = findUserName(item.GetNamedElements("content:encoded").GetText())
       avatars = updateAvatars(avatars, userName)
@@ -116,4 +116,8 @@ Function formatLicence(url As string)
         abbr = "CC-" + UCase(Mid(url, Len(ccl_url)+1, endMarker - Len(ccl_url)-1))
     End IF
     return abbr
+End Function
+
+Function formatDate(date As String)
+    return Left(date, 16)
 End Function
