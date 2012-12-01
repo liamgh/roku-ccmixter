@@ -74,6 +74,9 @@ Sub SetTheme()
     theme.OverhangOffsetHD_Y = "68"
     theme.OverhangSliceHD = "pkg:/images/header-main-b.png"
     theme.OverhangLogoHD  = "pkg:/images/cc-mixter-logo.png"
+    theme.BackgroundColor = "#FFFFFF"
+    theme.BreadcrumbTextRight = "#FFFFFF"
+    theme.BreadcrumbTextLeft = "#A0A0A0"
 
     app.SetTheme(theme)
 End Sub
