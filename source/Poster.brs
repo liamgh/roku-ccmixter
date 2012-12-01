@@ -73,13 +73,11 @@ Function posterscreen_getsel(timeout As Integer) As Integer
 
     while true
         msg = wait(timeout, m.screen.GetMessagePort())
-        print "posterscreen get selection typemsg = "; type(msg)
 
         if msg.isScreenClosed() then return -1
 
         if type(msg) = "roPosterScreenEvent" then
             if msg.isListItemSelected() then
-                print "list selected: " + Stri(msg.GetIndex())
                 return msg.GetIndex()
             endif
         endif

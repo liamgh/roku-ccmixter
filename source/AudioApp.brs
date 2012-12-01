@@ -38,8 +38,6 @@ REM
 REM
 REM ******************************************************
 Sub Main()
-    print "Entering Main"
-
     ' Set up the basic color scheme
     SetTheme()
     
@@ -52,7 +50,6 @@ Sub Main()
         if song = -1 exit while
         Show_Audio_Screen(songlist.posteritems[song],"Podcasts")
     end while
-    print "Exiting Main"
 End Sub
 
 REM ******************************************************
@@ -91,7 +88,6 @@ REM ******************************************************
 Sub Show_Audio_Screen(song as Object, prevLoc as string)
     Audio = AudioInit()
     picture = song.HDPosterUrl
-    print "picture at:"; picture
     o = CreateObject("roAssociativeArray")
     o.HDPosterUrl = picture
     o.SDPosterUrl = picture
@@ -137,9 +133,7 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
         if type(msg) = "roAudioPlayerEvent"  then       ' event from audio player
             if msg.isStatusMessage() then
                 message = msg.getMessage()
-                print "AudioPlayer Status Event - " message
                 if message = "start of play" then
-                    print "Starting to play track"
                     isTiming = True
                 End If
                 if message = "end of playlist"
@@ -162,26 +156,21 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
             else if msg.isFullResult()
                 print "FullResult: End of Playlist"
             else if msg.isPaused()
-                print "Paused"
                 isTiming = False
             else if msg.isResumed()
-                print "Resumed"
                 isTiming = True
             else
                 print "ignored event type:"; msg.getType()
             endif
         else if type(msg) = "roSpringboardScreenEvent" then     ' event from user
             if msg.isScreenClosed()
-                print "Show_Audio_Screen: screen close - return"
                 Audio.setPlayState(0)
                 return
             endif
             if msg.isRemoteKeyPressed() then
                 button = msg.GetIndex()
-                print "Remote Key button = "; button
             else if msg.isButtonPressed() then
                 button = msg.GetIndex()
-                print "button index="; button
                 if button = 1 'pause or resume
                     if Audio.isPlayState < 2    ' stopped or paused?
                         if (Audio.isPlayState = 0)

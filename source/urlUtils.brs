@@ -199,14 +199,11 @@ Function http_post_from_string_with_timeout(val As String, seconds as Integer) a
     if (m.Http.AsyncPostFromString(val))
         event = wait(timeout%, m.Http.GetPort())
         if type(event) = "roUrlEvent"
-			print "1"
 			str = event.GetString()
         else if event = invalid
-			print "2"
             Dbg("AsyncPostFromString timeout")
             m.Http.AsyncCancel()
         else
-			print "3"
             Dbg("AsyncPostFromString unknown event", event)
         endif
     endif
