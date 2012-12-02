@@ -126,8 +126,8 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
     isTiming = False    
     while true
         msg = Audio.getMsgEvents(1000, "roSpringboardScreenEvent")
+        If isTiming Then timePlayed = timePlayed + 1
         If song.Length > 0 Then
-           If isTiming Then timePlayed = timePlayed + 1
            scr.screen.SetProgressIndicator(timePlayed, song.Length)
         End If 
         if type(msg) = "roAudioPlayerEvent"  then       ' event from audio player
@@ -141,8 +141,6 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
                         ' ignore
                 else if message = "end of stream"
                     print "done playing this song (obsolete status msg event)"
-                    'audio.setPlayState(0)      ' stop the player, wait for user input
-                    'scr.ReloadButtons(0)    ' set button to allow play start
                 endif
             else if msg.isListItemSelected() then
                 print "starting song:"; msg.GetIndex()
@@ -155,12 +153,16 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
                 print "failed to play song:"; msg.GetData()
             else if msg.isFullResult()
                 print "FullResult: End of Playlist"
+                timePlayed = 0
+                isTiming = False
+                audio.setPlayState(0)      ' stop the player, wait for user input
+                scr.ReloadButtons(0)    ' set button to allow play start
             else if msg.isPaused()
                 isTiming = False
             else if msg.isResumed()
                 isTiming = True
             else
-                print "ignored event type:"; msg.getType()
+                'print "ignored event type:"; msg.getType()
             endif
         else if type(msg) = "roSpringboardScreenEvent" then     ' event from user
             if msg.isScreenClosed()
@@ -169,6 +171,20 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
             endif
             if msg.isRemoteKeyPressed() then
                 button = msg.GetIndex()
+                ' REW/FF Requires firmware 2.6
+                If button = 8 Then
+                   skipBack = 30
+                   If timePlayed - skipBack < 0 Then skipBack = timePlayed
+                   audio.audioplayer.Seek((timePlayed-skipBack)*1000)
+                   timePlayed = timePlayed - skipBack
+                Else If button = 9 Then
+                   skipForward = 30
+                   if song.Length > 0 And (timePlayed + skipForward) > song.Length Then skipForward = 0
+                   If skipForward > 0 Then 
+                       audio.audioplayer.Seek((timePlayed+skipForward)*1000)
+                       audio.audioplayer.Seek((timePlayed)*1000)
+                   End If
+                End If
             else if msg.isButtonPressed() then
                 button = msg.GetIndex()
                 if button = 1 'pause or resume

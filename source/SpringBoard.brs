@@ -24,6 +24,8 @@ Function create_springboard(port as Object, prevLoc as string) As Object
     screen.SetBreadcrumbText(prevLoc,"Now Playing")
     screen.SetMessagePort(port)
     screen.SetStaticRatingEnabled(false)
+    screen.AllowNavRewind(true)
+    screen.AllowNavFastForward(true)
 
     o.screen = screen 'keep alive as long as parent holds me
     return o

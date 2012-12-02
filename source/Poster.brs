@@ -68,7 +68,6 @@ REM Wait for user to select something from the Poster Screen
 REM
 REM ******************************************************
 Function posterscreen_getsel(timeout As Integer) As Integer
-    print "Enter PosterScreen getsel"
     m.show()
 
     while true
