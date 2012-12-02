@@ -1,25 +1,6 @@
 '**********************************************************
-'**  Audio Player Example Application - Audio Playback
-'**  November 2009
-'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
+' CCMixter audio playback
 '**********************************************************
-
-REM ******************************************************
-REM
-REM AudioApp - shows use of audioplayer concurrently with
-REM            basic Springboard. Using one shared msgport
-REM            for multiple event types.
-REM
-REM ******************************************************
-
-
-REM ******************************************************
-REM
-REM CreateCategories
-REM
-REM Create the categories for the PosterScreen
-REM
-REM ******************************************************
 Function CreateCategories()
     aa = CreateObject("roAssociativeArray")
     aa.PosterItems = CreateObject("roArray", 5, true)
@@ -33,7 +14,7 @@ End Function
 
 REM ******************************************************
 REM
-REM Main - all Roku scripts startup here.
+REM Main - script startup here.
 REM 
 REM
 REM ******************************************************
@@ -86,6 +67,9 @@ REM Upon entering screen, should start playing first audio stream
 REM
 REM ******************************************************
 Sub Show_Audio_Screen(song as Object, prevLoc as string)
+    ' Detect version number, see http://forums.roku.com/viewtopic.php?f=34&t=33697&p=214373
+    device = CreateObject("roDeviceInfo")
+    canSeek = mid(device.GetVersion(), 3, 3).ToFloat() >= 2.6
     Audio = AudioInit()
     picture = song.HDPosterUrl
     o = CreateObject("roAssociativeArray")
@@ -172,12 +156,12 @@ Sub Show_Audio_Screen(song as Object, prevLoc as string)
             if msg.isRemoteKeyPressed() then
                 button = msg.GetIndex()
                 ' REW/FF Requires firmware 2.6
-                If button = 8 Then
+                If button = 8 And canSeek Then
                    skipBack = 30
                    If timePlayed - skipBack < 0 Then skipBack = timePlayed
                    audio.audioplayer.Seek((timePlayed-skipBack)*1000)
                    timePlayed = timePlayed - skipBack
-                Else If button = 9 Then
+                Else If button = 9 And canSeek Then
                    skipForward = 30
                    if song.Length > 0 And (timePlayed + skipForward) > song.Length Then skipForward = 0
                    If skipForward > 0 Then 
